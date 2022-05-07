@@ -4,7 +4,7 @@
 
 <font color=red>!!!!不要使用Excel中的日期格式存储日期，使用字符串！！！！</font>
 
-#### 名词解析
+#### 1、名词解析
 
 - GMV：Gross Merchandise Volume即商品交易总额，是成交总额（一定时间段内）的意思。多用于电商行业，一般包括拍下但未支付的订单金额；----->订单的实际金额，与商家实收金额差距较大
 
@@ -38,11 +38,11 @@
 
 - 
 
-#### 切片器与数据透视表内置筛选
+#### 2、切片器与数据透视表内置筛选
 
 切片器可以在excel文件中的任一sheet进行选择，同步联动；而数据透视表仅能在透视表页面进行选择（全局变量与局部变量区别）
 
-#### 快捷键及一些细节操作
+#### 3、快捷键及一些细节操作
 
 - ctrl+shift+L：进入筛选模式，更好的总观整个数据
 
@@ -64,26 +64,26 @@
 
   >SUMIFS('拌客源数据1-8月'!$J:$J,'拌客源数据1-8月'!$A:$A,">="&DATE(YEAR($B39),MONTH($B39),1),'拌客源数据1-8月'!$A:$A,"<="&DATE(YEAR($B39),MONTH($B39)+1,1)-1,'拌客源数据1-8月'!$H:$H,"=美团")
 
-#### Sum函数
+#### 4、Sum函数
 
 ```
 sum(number1,number2,number3,.....) sum(列名) sum(行名)
 sum(单个或多个单元格) sum(列的名称 如A：A) sum(行的名称 如1:1)
 ```
 
-#### SumIf函数
+#### 5、SumIf函数
 
 ```
 sumif(criterial_range,criterial,sum_range)
 ```
 
-#### SumIfs函数
+#### 6、SumIfs函数
 
 ```e
 sumifs(sum_range,criterial_range1,criterial1,criterial_range2,criterial2,.....)
 ```
 
-#### 日期函数
+#### 7、日期函数
 
 ```
 Year函数，Year(serial_number) Year(日期)
@@ -94,7 +94,7 @@ EDATE函数
 
 每个月的第一天等于（下个月的第一天-1）
 
-#### Subtotal函数
+#### 8、Subtotal函数
 
 ```
 subtotal(function_num,ref1,[ref2],....)
@@ -102,13 +102,13 @@ subtotal(指定函数，选择区域1，[选择区域2],......)
 subtotal可以根据原数据的筛选进行求和的变化，较灵活，比sum灵活
 ```
 
-#### If函数（三目运算符）
+#### 9、If函数（三目运算符）
 
 ```
 if(criterial,value_iftrue,value_iffalse)
 ```
 
-#### Vlookup函数
+#### 10、Vlookup函数
 
 ```
 VLOOKUP函数(lookup_value,table_array,col_index_num,[range_lookup])
@@ -117,7 +117,7 @@ VLOOKUP(要查找的数据、要查找的位置和要返回的数据的区域、
 
 ### 顶级用法！！！！
 
-#### match与Index函数
+#### 1、match与Index函数
 
 ```
 MATCH(lookup_value,lookup_array,[match_type])
@@ -131,3 +131,36 @@ Match函数返回查找值在所在区域的哪一个位置，即Match函数的�
 Index函数返回查找的位置上的数据，当列值或行值为0时，返回整列或整行---->可用于sumif函数等运算
 
 <font color=red>index(数据区域,match(行查找项，index数据区域的相对区域,0),match(列查找项，index数据区域的相对区域,0)</font>
+
+### 周报制作
+
+#### 1、周报框架
+
+标题、小看板（包含目标的看板区域）、结果指标、过程指标
+
+结果指标部分有：
+
+```
+- GMV
+- 商家实收
+- 到手率=商家实收/GMV
+- 有效订单
+- 无效订单
+- 客单价=GMV/有效订单
+```
+
+过程指标有这些：
+
+```
+- 曝光人数
+- 进店人数
+- 进店转化率=进店人数/曝光人数
+- 下单人数
+- 下单转化率=下单人数/进店人数
+- 营销占比=cpc总费用/GMV
+```
+
+数据--->数据验证--->序列---》模拟筛选器
+
+
+
