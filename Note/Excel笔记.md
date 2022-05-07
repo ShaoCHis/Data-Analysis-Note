@@ -115,3 +115,19 @@ VLOOKUP函数(lookup_value,table_array,col_index_num,[range_lookup])
 VLOOKUP(要查找的数据、要查找的位置和要返回的数据的区域、要返回的数据在区域中的列号、返回近似匹配或精确匹配-指示为1/TRUE或0/FALSE)
 ```
 
+### 顶级用法！！！！
+
+#### match与Index函数
+
+```
+MATCH(lookup_value,lookup_array,[match_type])
+MATCH(查找项，查找区域，0)
+Index(lookup-array,row,col,[match_type])
+Index(数据区域，数据所在的行，数据所在的列，匹配方式)
+```
+
+Match函数返回查找值在所在区域的哪一个位置，即Match函数的查找区域仅能为一行或者一列，返回数值
+
+Index函数返回查找的位置上的数据，当列值或行值为0时，返回整列或整行---->可用于sumif函数等运算
+
+<font color=red>index(数据区域,match(行查找项，index数据区域的相对区域,0),match(列查找项，index数据区域的相对区域,0)</font>
