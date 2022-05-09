@@ -33,5 +33,7 @@ For a more comfortable reading,please get it to your computer
 
 ![](/Assets/报表截图.png)
 
-### 
+### Tableau BI面板截图
+
+![](/Assets/BI.png)
 
