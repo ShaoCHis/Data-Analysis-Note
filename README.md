@@ -4,6 +4,17 @@ Data-Analysis Note and self-made Framework
 The all notes were made by markdown.
 For a more comfortable reading,please get it to your computer
 
+```python
+文件目录：
+	Algorithm					# 数据分析常用算法笔记--指导书籍《统计学习方法》-李航
+    Article						# 关于数据分析文章笔记
+    Assets						# markdown部分图片资源
+    BookNotes					# 《深入浅出数据分析》笔记
+    MathBase					# 数学基础笔记
+    Note						# 数据分析常用工具笔记-Excel、Tableau、SQL等
+    file						# 为数据分析中使用的数据文件等
+```
+
 数据分析工作有它的特殊性：
 
 - 它不同于销售，不能直接为公司创收
