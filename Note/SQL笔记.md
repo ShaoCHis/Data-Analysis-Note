@@ -189,6 +189,7 @@ select*
 from nobel
 where yr=1984
 order by subject in ('chemistry','physics'),subject,winner
+# subject in ('chemistry','physics')这种条件判断语句会将在in中的属性看作1，其他subject的属性为0，然后默认为asc升序排序，即1会排在0的后面
 ```
 
 #### 4、limit
@@ -261,9 +262,119 @@ from world
 ```
 
 ```sql
+# 尝试运行以下sql语句
+select count(name),count(continent),count(area),count(population),count(gdp),count(*)
+from world
+
+select sum(gdp)/195,sum(gdp)/189,avg(gdp)
+from world
+# 可以发现sum(gdp)/189的值与avg(gdp)相等，即聚合函数不会计入空值,忽略空值
 ```
 
+单独使用group by：
 
+```sql
+# 以大洲分组，查询人口
+select sum(population),continent
+from world
+[where continent='Africa']	# 非洲人口总人数
+group by continent
+# 没有出现在group by中的属性必须出现在聚合函数中
+```
 
+```sql
+# 查询每个大洲和每个大洲的国家数量
+select count(name),continent
+from world
+group by continent
+```
 
+```sql
+# 查询2013至2015年每年每个科目的获奖人数，结果按年份从大到小，人数从大到小排序
+select yr,subject,count(winner) counts
+from nobel
+where yr between 2013 and 2015
+group by yr,subject
+order by yr desc,counts desc
+# select为最后运行的代码行
+```
 
+聚合函数：
+
+| 函数function | 说明             |
+| ------------ | ---------------- |
+| AVG()        | 返回某列的均值   |
+| COUNT()      | 返回某列的行数   |
+| MAX()        | 返回某列的最大值 |
+| MIN()        | 返回某列的最小值 |
+| SUM()        | 返回某列的和     |
+
+标准语法：
+
+- select 字段名1,聚合函数(字段名)
+- from 表名
+- [where 表达式]
+- [group by 字段名1]
+- [order by 字段名 asc|desc]
+- [limit [位置偏移量,]行数]
+
+```sql
+# 计算Estonia, Latvia, Lithuania这几个国家的总人口数
+select sum(population)
+from world
+where name in ('Estonia','Latvia','Lithuania')
+```
+
+```sql
+# 查询每个大洲和该大洲里人口数超过1千万的国家的数量
+select count(name),continent
+from world
+where population>10000000
+group by continent
+```
+
+#### 6、having&简单运行原理
+
+> - select 字段名
+> - from 表名
+> - [where 表达式]
+> - [group by 字段名]
+> - [having 表达式]
+> - [order by 字段名 asc|desc]
+> - [limit [位置偏移量,]行数]
+>
+> having 表达式限定分组聚合后的查询行必须满足的条件；使用该子句是为了对group by分组后的数据进行筛选
+>
+> having等价于对group by的where语句
+
+```sql
+# 查询总人口数量至少为1亿的大洲
+select continent
+from world
+group by continent
+having sum(population)>100000000
+# 同时having表达式中可以使用聚合函数，where表达式中不可以，因为where是对原表的行数据筛选，having是group by之后的数据进行筛选
+# 建议对行数据进行筛选使用where子句，对含有聚合函数的筛选使用having子句
+# having在聚合后进行判断，where在聚合前进行判断
+```
+
+```sql
+# 查询总人口数至少为3亿的大洲和其平均gdp，其中只有gdp高于200亿且人口数大于6000万或者gdp低于80亿且首都中含有三个a的国家的计入计算，最后按国家数从大到小排序，只显示第一行
+select continent,avg(gdp)
+from world
+where (gdp>20000000000 and population>60000000) or (gdp<8000000000 and capital like '%a%a%a%')
+group by continent
+having sum(population)>300000000
+order by count(name) desc
+limit 1
+```
+
+> 运行原理：from-where-group by-having -order by-limit-select
+>
+> - 执行from语句从数据库中调取复制一份表格
+> - 执行where语句在复制的表格中筛选出符合条件的数据行
+> - 执行group by语句依据指定的字段对筛选后的数据分区，将依据的字段进行去重分组，相当于Excel建立了一个数据透视表，添加了行标签
+> - 执行having语句筛选满足条件的分组
+> - 执行order by语句对满足条件的分组进行排序
+> - 执行limit语句对排序后的数据进行显示的行数限制
+> - 执行select语句，提取最后要显示的字段
