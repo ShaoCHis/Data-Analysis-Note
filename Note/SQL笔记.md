@@ -378,3 +378,267 @@ limit 1
 > - 执行order by语句对满足条件的分组进行排序
 > - 执行limit语句对排序后的数据进行显示的行数限制
 > - 执行select语句，提取最后要显示的字段
+
+```sql
+# 查询人均gdp大于3000的大洲及其人口数，仅gdp在200亿和300亿之间的国家计入计算
+select continent,sum(population)
+from world
+where gdp between 20000000000 and 30000000000
+group by continent
+having sum(gdp)/sum(population)>3000
+```
+
+#### 7、部分常见函数
+
+- 数学函数
+
+  > round(x,y)	-四舍五入函数
+  >
+  > > round函数对x值进行四舍五入，精确到小数点后y位
+  > >
+  > > y为负值时，保留小数点左边相应的位数为0，不进行四舍五入
+  > >
+  > > ```
+  > > 例如：round(3.15,1)返回3.2；round(14.15,-1)返回10
+  > > ```
+
+- 字符串函数
+
+  > concat(s1,s2,...)	-连接字符串函数
+  >
+  > > concat函数返回连接参数s1、s2等产生的字符串
+  > >
+  > > 任意参数为null时，则返回null
+  > >
+  > > ```
+  > > 例如：concat('My','SQL')返回MySQL;concat('My',null,'SQL')返回null
+  > > ```
+  >
+  > replace(s,s1,s2)	-替换函数
+  >
+  > > replace函数使用字符串s2代替s中所有的s1
+  > >
+  > > ```
+  > > 例如：replace('MYSQLMYSQL','SQL','sql')返回MYsqlMYsql
+  > > ```
+  >
+  > left(s,n)、right(s,n)&substring(s,n,len)	-截取字符串一部分的函数
+  >
+  > >left函数返回字符串s最左边n个字符
+  > >
+  > >right函数返回字符串最右边n个字符
+  > >
+  > >substring函数返回字符串s从第n个字符起取长度为len的子字符串，n也可以为负值，则从**倒数**第n个字符起取长度为len的子字符串，没有len值则取从第n个字符起到最后一位
+  > >
+  > >```
+  > >例如：left('abcdefg',3)返回abc，right('abcdefg',3)返回efg，substring('abcdefg',2,3)返回bcd，substring('abcdrfg',-2,3)返回fg，substring('abcdefg',2)返回bcdefg
+  > >```
+
+- 数据类型转换函数
+
+  >cast(x as type)	-转换数据类型函数
+  >
+  >> cast函数将一个类型的x值转换为另一个类型的值
+  >>
+  >> type参数可以填写char(n)、date、time、datetime、decimal等转换为对应的数据类型
+
+- 日期时间函数
+
+  > year(date)、month(date)&day(date)	-获取年月日的函数
+  >
+  > >date可以是年月日组成的日期，也可以是年月日时分秒组成的日期时间
+  > >
+  > >year(date)返回日期格式中的年份
+  > >
+  > >month(date)返回日期格式中的月份
+  > >
+  > >day(date)返回年日期格式中的月份
+  > >
+  > >```
+  > >例如：year('2021-08-03')返回2021，month('2021-08-03')返回8，day('2021-08-03')返回3
+  > >```
+  >
+  > date_add(date,interval expr type)&date_sub(date,interval expr type)	-对指定起始时间进行加减操作
+  >
+  > > date用来指定起始时间
+  > >
+  > > date可以是年月日组成的日期，也可以是年月日时分秒组成的日期时间
+  > >
+  > > expr用来指定从起始时间添加或减去的时间间隔
+  > >
+  > > type指示expr被解释的方式，type可以是以下值
+  > >
+  > > ```
+  > > 主要使用：second、minute、hour、day、week、month、quarter、year
+  > > ```
+  > >
+  > > date_add函数对起始时间进行加操作，date_sub函数对起始时间进行减操作
+  > >
+  > > ```
+  > > 例如：date_add('2021-08-03 23:59:59',interval 1 second)返回2021-08-04 24:00:00,date_sub('2021-08-03 23:59:59',interval 2 month)返回2021-06-03 23:59:59
+  > > ```
+  >
+  > datediff(date1,date2)	-计算两个日期之间间隔的天数
+  >
+  > > datediff函数由date1-date2计算出间隔的时间，只有date的**日期部分参与计算，时间不参与**
+  > >
+  > > ```
+  > > 例如：datediff('2021-06-08','2021-06-01')返回7，datediff('2021-06-08 23:59:59','2021-06-01 21:00:00')返回7，datediff('2021-06-01','2021-06-08')返回-7
+  > > ```
+  >
+  > date_format(date,format)	-将日期和时间格式化
+  >
+  > >date_format函数根据format指定的格式显示date值
+  > >
+  > >```
+  > >例如：date_format('2018-06-01 16:23:12','%b%d%Y%h:%i%p')返回Jun 01 2018 04:23 PM，date_format('2018-06-01 16:23:12','%Y%d%m')返回2018/01/06
+  > >```
+
+- 条件判断函数
+
+  > if(expr,v1,v2)
+  >
+  > > 如果表达式expr是true返回值v1，否则返回v2
+  > >
+  > > ```
+  > > 例如：if(1<2,'Y','N')返回Y，if(1>2,'Y','N')返回N
+  > > ```
+  >
+  > case when
+  >
+  > > case expr when v1 then r1 [when v2 then r2]....[else rn]	end
+  > >
+  > > ```
+  > > 例如：case 2 when 1 then 'one' when 2 then 'two' else 'more' end	返回two
+  > > case when 1<0 then 'T' else 'F' end 返回F
+  > > ```
+
+```sql
+# 将0、1与>1替换为文本信息
+select recovered 累计人数,case when recovered=1 then 'one' when recovered>1 then 'more' else '0' end
+from covid
+where recovered>0
+# 将数字1替换为one,>1替换为more
+```
+
+```sql
+# year、month、day函数
+select whn 更新时间,year(whn) 年,month(whn) 月,day(whn) 日
+from covid
+where recovered>0
+```
+
+```sql
+# date_add函数
+select whn 更新时间,date_add(whn,interval 2 day) 加两天
+from covid
+where recovered>0
+```
+
+```sql
+# replace函数
+select distinct name,replace(name,'a','替换') 替换
+from covid
+```
+
+```sql
+# round函数和concat函数
+select deaths,recovered,confirmed,concat(round((recovered/confirmed)*100,2),'%')
+from covid
+where recovered/confirmed>0.3
+```
+
+```sql
+# 查询国家名称及其首都名称都以相同的字母开头的国家名及其首都，且不能包括国家名称和首都名称完全相同的情况
+select name,capital
+from world
+where left(name,1)=left(capital,1) and name!=capital
+```
+
+```sql
+# 查询首都和名称，其中首都需是国家名称的扩展
+select name,capital
+from world
+where capital like concat('%',name,'%') and capital!=name
+```
+
+#### 8、窗口函数
+
+窗口函数，也叫OLAP函数(Online Anallytical Processing，联机分析处理)，可以对数据库数据进行实时分析处理
+
+窗口函数的基本语法如下：
+
+```
+<窗口函数> over(partition by <用于分组的列名>
+			  order by <用于排序的列名>)
+```
+
+<窗口函数>的位置，可以放以下两种函数：
+
+1）专用窗口函数，包括后面要讲到的rank、dense_rank、row_number等专用窗口函数
+
+2）聚合函数，如sum、avg、count、max、min等
+
+因为窗口函数是对where或者group by子句处理后的结果进行操作，**所以窗口函数原则上只能写在select子句中**
+
+使用例子：
+
+![](https://pic2.zhimg.com/80/v2-f8c3b3deb99122d75bb506fdbea81c8d_720w.jpg)
+
+```sql
+# 每个班内按成绩排名
+# select子句中，rank是排序的函数；这句话可以分为两部分
+# 1）每个班级内，按班级分组		-partition by用来对表分组。在本例中，我们指定了按“班级”分组（partition by 班级）
+# 2）按成绩排名		-order by子句的功能是对分组后的结果进行排序，默认是asc升序。
+select *,
+	rank() over (partition by 班级,
+                order by 成绩 desc)	as ranking
+from 班级表
+```
+
+![](https://pic3.zhimg.com/80/v2-3285d1d648de9f90864000d58847087a_720w.jpg)
+
+**group by分组汇总后改变了表的行数，一行只有一个类别。而partiition by和rank函数不会减少原表中的行数**
+
+简单来说，窗口函数具有以下功能：
+
+- 同时具有分组和排序的功能
+
+- 不减少原表的行数
+
+- 语法如下
+
+  ```sql
+  <窗口函数>	over (partition by <用于分组的列名>
+               order by <用于排序的列名>)
+  ```
+
+其他专业的窗口函数：dense_rank，row_number区别
+
+```sql
+select *，
+	rank() over (order by 成绩 desc) as ranking,				# rank将进行序号的排序，值相同并列，但索引值会累加
+	dense_rank() over (order by 成绩 desc) as dense_rank,		 # dense_rank同样排序，值相同并列，索引值不会累加
+	row_number() over (order by 成绩 desc) as row_num,		 # row_number即进行每一行的编号操作
+from 班级表
+```
+
+![](https://pic2.zhimg.com/80/v2-ad1d86f5a5b9f0ef684907b20b341099_720w.jpg)
+
+**聚合函数用作窗口函数**
+
+聚合窗口函数和上面提到的专用窗口函数用法完全相同，只需要把聚合函数写在窗口函数的位置即可，但是函数后面括号里面不能为空，需要指定聚合列名。
+
+```sql
+# 聚合函数sum在窗口函数中，是对自身记录、及位于自身记录以上的数据进行求和的结果
+select *,
+	sum(成绩) over (order by 学号) as current_sum,
+	avg(成绩) over (order by 学号) as current_avg,
+	count(成绩) over (order by 学号) as current_count,
+	max(成绩) over (order by 学号) as current_max,
+	min(成绩) over (order by 学号) as current_min,
+from 班级表
+```
+
+![](https://pic2.zhimg.com/80/v2-c48f0218306f65049fcf9f98c184226d_720w.jpg)
+
