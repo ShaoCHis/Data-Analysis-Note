@@ -4,6 +4,8 @@
 
 [练习网站](https://sqlzoo.net/wiki/SELECT_basics)
 
+![](https://api2.mubu.com/v3/document_image/a1d7a60c-f206-4ef6-bd22-8cbd0b05ba8a-9404487.jpg)
+
 #### 1、select from
 
 > select为用户查询所需要的字段
@@ -641,4 +643,169 @@ from 班级表
 ```
 
 ![](https://pic2.zhimg.com/80/v2-c48f0218306f65049fcf9f98c184226d_720w.jpg)
+
+**偏移分析函数**
+
+```sql
+lag(字段名，偏移量，[,默认值]) over()		-# 求同比---向前偏移
+lead(字段名，偏移量，[,默认值]) over()		-# 求环比和同比-----向后偏移
+```
+
+```sql
+# 查询每一年S14000021选区中所有候选人所在的团体(party)和得票数(votes)，并对每一年中的所有候选人根据选票数的高低赋予名次，选票数最高则为1，第二名则为2，后续以此类推，最后根据团体(party)和年份(yr)排序
+select yr,party,votes,rank() over(partition by yr order by votes desc) as posn
+from ge
+where constituency = 'S14000021'
+order by party,yr
+```
+
+```sql
+# 查询法国和德国1月每天新增确诊人数，最后显示国家名、标准日期（2020-01-27）、当天截至时间累计确诊人数、昨天截至时间累计确诊人数、每天新增确诊人数，按照截至时间排序
+select name,date_format(whn,'%Y-%m-%d') date,confirmed 当天截至时间累计确诊人数
+,lag(confirmed,1)over(partition by name order by whn) 昨天截至时间累计确诊人数
+,(confirmed - lag(confirmed,1)over(partition by name order by whn)) 每天新增确诊人数
+from covid
+where name in ('France','Germany') and month(whn) = 1
+order by whn
+```
+
+```sql
+# 查询2017年选区为'S14000024'的所有候选人所在团体（party）和其选票数（votes）、还有候选人得票数在选区内对应的排名，结果按团队party排序
+select firstName,lastName,rank()over(order by votes desc) as ranking # 选取内对应的排名
+from ge
+where constituency='S14000024' and yr=2017
+order by party
+```
+
+```sql
+# 查询截至时间为2020年4月20日的国家名，确诊人数，确诊人数排名，死亡人数，死亡人数排名,按照确诊人数降序排名
+select name,confirmed,rank()over(order by confirmed desc) 确诊排名,deaths,rank()over(order by deaths desc) 死亡排名
+from covid
+where whn=2020-04-20
+order by confirmed desc
+```
+
+```sql
+# 查询意大利每周新增确诊数（显示每周一的数值 weekday(whn) = 0,最后显示国家名，标准日期（2020-01-27），每周新增人数,按照截至时间排序
+select name,date_format(whn,'%Y-%m-%d'),confirmed-lag(confirmed,1)over(order by whn) 上周新增
+from covid
+where weekday(whn)=0 and name='Italy'
+order by whn
+```
+
+#### 9、表连接
+
+**内连接**
+
+```sql
+select 字段名
+from 表明1 inner join 表名2 on 表名1.字段名=表名2.字段名
+# 注意内连接inner可以省略，直接使用join默认为内连接
+
+# 产生的新数据表为表名1.字段名=表名2.字段名判断条件下的数据，包含表名1和表名2中的所有属性
+```
+
+**左连接**
+
+```sql
+select 字段名
+from 表名1 left join 表名2 on 表名1.字段名=表名2.字段名
+# 保留左表数据
+# 产生的新数据表不仅包含表名1.字段名=表名2.字段名判断条件下的数据，还包含表名1中不满足判断条件的数据，这一部分的数据对应表名2的字段属性值为空
+```
+
+**右连接**
+
+```sql
+select 字段名
+from 表名1 right join 表名2 on 表名1.字段名=表名2.字段名
+# 保留右表数据
+# 产生的新数据表不仅包含表名1.字段名=表名2.字段名判断条件下的数据，还包含表名2中不满足判断条件的数据，这一部分的数据对应表名1的字段属性值为空
+```
+
+```sql
+# 查询有球员名叫Mario进球的队伍1（team1），队伍2（team2）及球员姓名
+select game.id,game.team1,game.team2,goal.player
+from goal join game on goal.matchid=game.id
+where player like '%Mario%'
+```
+
+```sql
+# 查询队伍1（team1）的教练是“Fernando Stantos”的球队名称(teamname)、比赛日期(mdate)和赛事编号(id)
+select teamname,mdate,game.id
+from game join eteam on game.team1=eteam.id
+where coach = 'Fernando Santos'
+```
+
+```sql
+# 使用合适的连接显示所有教师及其所教授的科目名
+select teacher.name,dept.name
+from dept join teacher on dept.id=teacher.dept
+```
+
+```sql
+# 查询至少出演过第1主角30次的演员名
+select a.name
+from casting c join actor a on c.actorid=a.id  # 先将影片次序与演员关联
+where ord=1			# ！！！！！！！选取ord为1的，即第一主角
+group by name		# 名字分组
+having count(ord)>30		# having>30
+```
+
+```sql
+# 查询在比赛前10分钟有进球记录的球员，他们的队伍编号(teamid)，教练(coach)，进球时间(gtime)
+select distinct player,teamid,coach,gtime
+from goal g join eteam e on g.teamid=e.id
+where gtime<10
+```
+
+```sql
+# 查询每场比赛，每个球队的得分情况，
+# mathcid，mdate，team1，score1，team2，score2
+select distinct mdate,id,
+# 在count聚合中使用条件判断需注意，不管是true还是false都会加1，只有null不会增加；同样不管then后面的数值为几，都是加一
+team1,count(case when team1=teamid then 1 else null end)over(partition by matchid) score1,
+team2,count(case when team2=teamid then 1 else null end)over(partition by matchid) score2
+from game join goal on goal.matchid=game.id
+order by mdate 
+
+# 另一种写法
+select ga.mdate,
+ga.team1,sum(case when ga.team1=go.teamid then 1 else 0 end) score1,
+ga.team2,sum(case when ga.team2=go.teamid then 1 else 0 end) score2
+from game ga left join goal go on ga.id = go.matchid
+group by ga.mdate,ga.team1,ga.team2
+order by ga.mdate, go.matchid, ga.team1, ga.team2
+```
+
+#### 10、子查询
+
+> 子查询本身就是一段完整的查询语句，然后用括号包裹嵌套在主查询语句中，子查询可以多层嵌套，最常用的子查询就是运用在**from**和**where**子句中
+
+```sql
+# where 基于子查询条件筛选（比较运算符&in关键字）
+# 查询gdp高于欧洲每个国家的所有国家名，有一些国家gdp值可能为null，请排除这些国家
+select name
+from world
+where gdp is not null and gdp > 
+	(select max(gdp) 
+     from world 
+     where continent='Europe')
+```
+
+```sql
+# 查询跟阿尔吉尼亚(Argentina)和澳大利亚(Australia)在同一大洲的所有国家名及其所属大洲，并按照国家名进行排序
+select name,continent
+from world
+where continent in (select continent
+                   from world
+                   where name in ('Argentina','Australia'))
+order by name
+```
+
+```sql
+# from 基于子查询作为数据表
+# 查询2017年所有在爱丁堡选区当选议员所在选区(constituency)及其团队(party),已知爱丁堡选区编号为S14000021至S14000026,当选议员即各选区得票数最高的候选人
+
+```
 
