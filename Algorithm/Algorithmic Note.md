@@ -1,6 +1,6 @@
-### Algorithmic Note
-
 [toc]
+
+### Algorithmic Note
 
 参考书目：《统计学习方法》-李航
 
